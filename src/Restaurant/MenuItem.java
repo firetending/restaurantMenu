@@ -1,23 +1,23 @@
 package Restaurant;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 public class MenuItem {
     private String name;
     private String description;
-    private float price;
-    private String category;
+    private double price;
+    private Menu.Category category;
     private LocalDate dateAdded;
     private boolean isNew;
-    private LocalDate compareDate = LocalDate.now().minus(30, ChronoUnit.DAYS);
+    private static LocalDate compareDate = LocalDate.now().minus(30, ChronoUnit.DAYS);
+    public static final NumberFormat USD = NumberFormat.getCurrencyInstance();
 
-
-    public MenuItem(String aName, float aPrice) {
+    public MenuItem(String aName, double aPrice) {
         this.name = aName;
         this.price = aPrice;
-        this.dateAdded = LocalDate.now();
-        this.isNew = this.dateAdded.isAfter(compareDate);
     }
 
     public String getName() {
@@ -36,19 +36,19 @@ public class MenuItem {
         this.description = description;
     }
 
-    public float getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(float price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    public String getCategory() {
+    public Menu.Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Menu.Category category) {
         this.category = category;
     }
 
@@ -60,27 +60,45 @@ public class MenuItem {
         this.dateAdded = dateAdded;
     }
 
-    public boolean isNew() {
+    public boolean getIsNew() {
+        this.isNew = this.dateAdded.isAfter(compareDate);
         return isNew;
-    }
-
-    public void setNew(boolean aNew) {
-        isNew = aNew;
     }
 
     public LocalDate getCompareDate() {
         return compareDate;
     }
 
-    public void setCompareDate(LocalDate compareDate) {
-        this.compareDate = compareDate;
+    //instance methods
+    public void addedToMenu(Menu.Category category, LocalDate dateAdded) {
+        this.setCategory(category);
+        this.setDateAdded(dateAdded);
     }
 
-    //instance methods
-    public void print() {
-        if (this.isNew) {
-            System.out.print("NEW! ");
+    public void removedFromMenu() {
+        this.setCategory(null);
+    }
+
+    @Override
+    public String toString() {
+        String output = "";
+        if (this.getIsNew()) {
+            output+="NEW! ";
         }
-        System.out.println(this.getName()+" "+this.getPrice());
+        output+=this.getName()+" "+USD.format(this.getPrice());
+        return output;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuItem menuItem = (MenuItem) o;
+        return Double.compare(menuItem.price, price) == 0 && Objects.equals(name, menuItem.name) && Objects.equals(description, menuItem.description) && Objects.equals(category, menuItem.category);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, price, category);
     }
 }
